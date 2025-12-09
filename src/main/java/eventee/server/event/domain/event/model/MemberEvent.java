@@ -1,7 +1,7 @@
 package eventee.server.event.domain.event.model;
 
-import com.server.eventee.domain.member.model.Member;
-import com.server.eventee.global.entity.BaseEntity;
+import eventee.server.event.domain.member.model.Member;
+import eventee.server.event.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -24,9 +24,7 @@ public class MemberEvent extends BaseEntity {
   private Long id;
 
   @NotNull
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id", nullable = false)
-  private Member member;
+  private Long memberId;
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)

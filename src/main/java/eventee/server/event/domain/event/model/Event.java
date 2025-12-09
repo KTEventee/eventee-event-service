@@ -1,7 +1,6 @@
 package eventee.server.event.domain.event.model;
 
-import com.server.eventee.domain.group.model.Group;
-import com.server.eventee.global.entity.BaseEntity;
+import eventee.server.event.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

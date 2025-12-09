@@ -1,6 +1,11 @@
 package eventee.server.event.domain.event.converter;
 
 
+import eventee.server.event.domain.event.dto.EventResponse;
+import eventee.server.event.domain.event.dto.MemberListDto;
+import eventee.server.event.domain.event.model.Event;
+import eventee.server.event.domain.event.model.MemberEvent;
+import eventee.server.event.domain.event.repository.MemberEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -29,27 +34,27 @@ public class EventConverter {
                 .build();
     }
 
-    public MemberEvent toHostRelation(Member member, Event event) {
+    public MemberEvent toHostRelation(MemberListDto.MemberDto member, Event event) {
         return MemberEvent.builder()
-                .member(member)
+                .memberId(member.id())
                 .event(event)
                 .role(MemberEvent.MemberEventRole.HOST)
                 .nickname(event.getTitle() + "관리자")
                 .build();
     }
 
-    public Group toGroup(int groupNo, Member leader, Event event) {
+    public Group toGroup(int groupNo, MemberListDto.MemberDto leader, Event event) {
         return Group.builder()
                 .groupName("팀 " + groupNo + "조")
                 .groupDescription("팀 이름과 소개를 작성해주세요!")
                 .groupImg(null)
                 .groupNo(groupNo)
-                .groupLeader(leader.getNickname())
+                .groupLeader(leader.nickname())
                 .event(event)
                 .build();
     }
 
-    public EventResponse.CreateResponse toCreateResponse(Event event, Member member) {
+    public EventResponse.CreateResponse toCreateResponse(Event event, MemberListDto.MemberDto member) {
         String inviteUrl = "https://www.eventee.cloud/invite/" + event.getInviteCode();
 
         return EventResponse.CreateResponse.builder()
@@ -62,15 +67,15 @@ public class EventConverter {
                 .createdAt(event.getCreatedAt())
                 .creator(
                         EventResponse.CreateResponse.CreatorInfo.builder()
-                                .memberId(member.getId())
-                                .nickname(member.getNickname())
-                                .profileImageUrl(member.getProfileImageUrl())
+                                .memberId(member.id())
+                                .nickname(member.nickname())
+                                .profileImageUrl(member.profileImageUrl())
                                 .build()
                 )
                 .build();
     }
 
-    public EventResponse.EventWithGroupsResponse toEventWithGroupsResponse(Event event, List<Group> groups, MemberEventRole role, String nickname) {
+    public EventResponse.EventWithGroupsResponse toEventWithGroupsResponse(Event event, List<Group> groups, MemberEvent.MemberEventRole role, String nickname) {
 
         List<EventResponse.EventWithGroupsResponse.GroupSummary> groupDtos =
                 groups.stream()
@@ -101,7 +106,7 @@ public class EventConverter {
     public EventResponse.GroupPostsResponse toGroupPostsResponse(
             Group group,
             List<Post> posts,
-            Member member
+            MemberListDto.MemberDto member
     ) {
 
         Long eventId = group.getEvent().getId();
@@ -121,11 +126,11 @@ public class EventConverter {
 
     private EventResponse.GroupPostsResponse.PostInfo convertPostToDto(
             Post post,
-            Member currentUser,
+            MemberListDto.MemberDto currentUser,
             Long eventId
     ) {
 
-        boolean isMinePost = post.getMember().getId().equals(currentUser.getId());
+        boolean isMinePost = post.getMember().getId().equals(currentUser.id());
 
         String author = post.getMember().getNickname();
 
@@ -207,7 +212,7 @@ public class EventConverter {
 
     private List<EventResponse.GroupPostsResponse.CommentInfo> convertComments(
             List<Comment> comments,
-            Member currentUser
+            MemberListDto.MemberDto currentUser
     ) {
         return comments.stream()
                 .map(c -> EventResponse.GroupPostsResponse.CommentInfo.builder()
@@ -216,7 +221,7 @@ public class EventConverter {
                         .writerNickname(c.getMember().getNickname())
                         .writerProfileUrl(c.getMember().getProfileImageUrl())
                         .createdAt(c.getCreatedAt())
-                        .isMine(c.getMember().getId().equals(currentUser.getId()))
+                        .isMine(c.getMember().getId().equals(currentUser.id()))
                         .build())
                 .toList();
     }

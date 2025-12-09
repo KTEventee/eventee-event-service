@@ -1,12 +1,14 @@
 package eventee.server.event.domain.event.controller;
 
+import eventee.server.event.domain.event.dto.EventRequest;
+import eventee.server.event.domain.event.dto.EventResponse;
+import eventee.server.event.domain.event.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import tools.jackson.databind.ObjectMapper;
 
 @Tag(name = "Event", description = "이벤트 생성 및 입장 관련 API")
 @RestController

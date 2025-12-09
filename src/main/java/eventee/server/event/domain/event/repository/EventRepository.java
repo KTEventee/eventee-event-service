@@ -1,6 +1,6 @@
 package eventee.server.event.domain.event.repository;
 
-import com.server.eventee.domain.event.model.Event;
+import eventee.server.event.domain.event.model.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
