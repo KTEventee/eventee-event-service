@@ -5,7 +5,8 @@ import eventee.server.event.domain.event.dto.EventRequest;
 import eventee.server.event.domain.event.dto.EventResponse;
 import eventee.server.event.domain.event.dto.EventResponse.AdminEventDetailResponse;
 import eventee.server.event.domain.event.dto.EventResponse.UpdateEventResponse;
-import eventee.server.event.domain.event.dto.MemberListDto;
+import eventee.server.event.domain.group.repository.GroupRepository;
+import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.domain.event.exception.EventErrorStatus;
 import eventee.server.event.domain.event.exception.EventHandler;
 import eventee.server.event.domain.event.model.Event;
@@ -13,6 +14,7 @@ import eventee.server.event.domain.event.model.MemberEvent;
 import eventee.server.event.domain.event.model.MemberEvent.MemberEventRole;
 import eventee.server.event.domain.event.repository.EventRepository;
 import eventee.server.event.domain.event.repository.MemberEventRepository;
+import eventee.server.event.domain.group.model.Group;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -30,6 +32,7 @@ public class EventServiceImpl implements EventService {
 
   private final EventRepository eventRepository;
   private final MemberEventRepository memberEventRepository;
+  private final GroupRepository groupRepository;
 
   private final EventConverter eventConverter;
 
@@ -147,7 +150,8 @@ public class EventServiceImpl implements EventService {
       throw new EventHandler(EventErrorStatus.GROUP_NOT_BELONGS_TO_EVENT);
     }
 
-    List<Post> posts = postRepository.findAllByGroupAndIsDeletedFalse(group);
+    //fixme post 처리하기
+//    List<Post> posts = postRepository.findAllByGroupAndIsDeletedFalse(group);
 
     return eventConverter.toGroupPostsResponse(group, posts, member);
   }
@@ -204,6 +208,8 @@ public class EventServiceImpl implements EventService {
         .findMemberEventsByEventAndIsDeletedFalse(event);
 
     //fixme 호출한대로 그냥 출력하기
+
+
     return relations.stream()
         .map(m -> MemberListDto.MemberDto.from(m.getMember()))
         .toList();
@@ -217,8 +223,7 @@ public class EventServiceImpl implements EventService {
 
     
     //fixme member불러오는 API필요함
-    MemberListDto.MemberDto kickMember = memberRepository.findById(request.memberId())
-        .orElseThrow(() -> new MemberHandler(MemberErrorStatus.MEMBER_NOT_FOUND));
+    MemberListDto.MemberDto kickMember = member;
 
     Event event = eventRepository.findByIdAndIsDeletedFalse(request.eventId())
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));

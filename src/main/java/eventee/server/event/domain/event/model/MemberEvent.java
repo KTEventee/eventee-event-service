@@ -1,6 +1,5 @@
 package eventee.server.event.domain.event.model;
 
-import eventee.server.event.domain.member.model.Member;
 import eventee.server.event.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

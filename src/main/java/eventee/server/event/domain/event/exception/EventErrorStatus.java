@@ -1,7 +1,7 @@
 package eventee.server.event.domain.event.exception;
 
-import com.server.eventee.global.exception.codes.BaseCode;
-import com.server.eventee.global.exception.codes.reason.Reason;
+import eventee.server.event.global.exception.codes.BaseCode;
+import eventee.server.event.global.exception.codes.reason.Reason;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

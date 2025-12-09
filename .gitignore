@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 *.properties
 build.gradle
+src/main/java/eventee/server/event/global
 
 ### STS ###
 .apt_generated

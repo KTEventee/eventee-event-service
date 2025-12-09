@@ -2,10 +2,11 @@ package eventee.server.event.domain.event.converter;
 
 
 import eventee.server.event.domain.event.dto.EventResponse;
-import eventee.server.event.domain.event.dto.MemberListDto;
+import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.domain.event.model.Event;
 import eventee.server.event.domain.event.model.MemberEvent;
 import eventee.server.event.domain.event.repository.MemberEventRepository;
+import eventee.server.event.domain.group.model.Group;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -135,7 +136,7 @@ public class EventConverter {
         String author = post.getMember().getNickname();
 
         MemberEvent me = memberEventRepository
-                .findByMemberAndEventAndIsDeletedFalse(post.getMember(), post.getGroup().getEvent())
+                .findByMemberIdAndEventAndIsDeletedFalse(post.getMember(), post.getGroup().getEvent())
                 .orElse(null);
 
         String writerNickname = me != null ? me.getNickname() : null;

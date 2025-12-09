@@ -3,7 +3,7 @@ package eventee.server.event.domain.event.service;
 import eventee.server.event.domain.event.dto.EventRequest;
 import eventee.server.event.domain.event.dto.EventRequest.UpdateRequest;
 import eventee.server.event.domain.event.dto.EventResponse;
-import eventee.server.event.domain.event.dto.MemberListDto;
+import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 
 import java.util.List;
 

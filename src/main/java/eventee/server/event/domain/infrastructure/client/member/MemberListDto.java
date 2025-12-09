@@ -1,9 +1,6 @@
-package eventee.server.event.domain.event.dto;
+package eventee.server.event.domain.infrastructure.client.member;
 
-import eventee.server.event.domain.member.model.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.util.List;
 
 public class MemberListDto {
     public record MemberDtoByGroup(){
@@ -23,20 +20,20 @@ public class MemberListDto {
             @Schema(description = "역할(USER/ADMIN 등)", example = "USER")
             String role
     ){
-        public static MemberDto from(Member member){
-            return new MemberDto(
-                    member.getId(),
-                    member.getEmail(),
-                    member.getNickname(),
-                    member.getProfileImageUrl(),
-                    member.getRole().toString()
-            );
-        }
-
-        public static List<MemberDto> from(List<Member> members){
-            return members.stream().map(
-                    MemberDto::from
-            ).toList();
-        }
+//        public static MemberDto from(Member member){
+//            return new MemberDto(
+//                    member.getId(),
+//                    member.getEmail(),
+//                    member.getNickname(),
+//                    member.getProfileImageUrl(),
+//                    member.getRole().toString()
+//            );
+//        }
+//
+//        public static List<MemberDto> from(List<Member> members){
+//            return members.stream().map(
+//                    MemberDto::from
+//            ).toList();
+//        }
     }
 }
