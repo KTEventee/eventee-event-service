@@ -13,7 +13,7 @@ public interface EventService {
 
   EventResponse.JoinResponse joinEvent(MemberListDto.MemberDto member, EventRequest.JoinRequest inviteCode);
   EventResponse.EventWithGroupsResponse getEventGroups(MemberListDto.MemberDto member, Long eventId);
-  EventResponse.GroupPostsResponse getGroupPosts(MemberListDto.MemberDto member, Long eventId, Long groupId);
+//  EventResponse.GroupPostsResponse getGroupPosts(MemberListDto.MemberDto member, Long eventId, Long groupId);
 
   EventResponse.InviteCodeValidateResponse validateInviteCode(String code);
 

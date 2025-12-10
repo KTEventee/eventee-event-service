@@ -3,6 +3,7 @@ package eventee.server.event.domain.event.controller;
 import eventee.server.event.domain.event.dto.EventRequest;
 import eventee.server.event.domain.event.dto.EventResponse;
 import eventee.server.event.domain.event.service.EventService;
+import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.global.exception.BaseResponse;
 import eventee.server.event.global.exception.codes.SuccessCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
 
 @Tag(name = "Event", description = "이벤트 생성 및 입장 관련 API")
 @RestController
@@ -36,9 +39,8 @@ public class EventController {
     @Operation(summary = "이벤트 생성")
     @PostMapping
     public BaseResponse<EventResponse.CreateResponse> createEvent(
-            @CurrentMember Member member,
             @Valid @RequestBody EventRequest.CreateRequest request) {
-
+        MemberListDto.MemberDto member = null;
         EventResponse.CreateResponse response = eventService.createEvent(member, request);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
@@ -47,9 +49,9 @@ public class EventController {
     @Operation(summary = "이벤트 입장")
     @PostMapping("/join")
     public BaseResponse<EventResponse.JoinResponse> joinEvent(
-            @CurrentMember Member member,
             @Valid @RequestBody EventRequest.JoinRequest request
     ) {
+        MemberListDto.MemberDto member = null;
         EventResponse.JoinResponse response = eventService.joinEvent(member, request);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
@@ -58,25 +60,25 @@ public class EventController {
     @Operation(summary = "이벤트 그룹 목록 조회")
     @GetMapping("/{eventId}/groups")
     public BaseResponse<EventResponse.EventWithGroupsResponse> getEventGroups(
-            @CurrentMember Member member,
             @PathVariable Long eventId
     ) {
+        MemberListDto.MemberDto member = null;
         EventResponse.EventWithGroupsResponse response = eventService.getEventGroups(member, eventId);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
-    @Operation(summary = "그룹별 포스트 조회")
-    @GetMapping("/{eventId}/groups/{groupId}/posts")
-    public BaseResponse<EventResponse.GroupPostsResponse> getGroupPosts(
-            @CurrentMember Member member,
-            @PathVariable Long eventId,
-            @PathVariable Long groupId
-    ) {
-        EventResponse.GroupPostsResponse response = eventService.getGroupPosts(member, eventId, groupId);
-        logResponse(response);
-        return BaseResponse.of(SuccessCode.SUCCESS, response);
-    }
+//    @Operation(summary = "그룹별 포스트 조회")
+//    @GetMapping("/{eventId}/groups/{groupId}/posts")
+//    public BaseResponse<EventResponse.GroupPostsResponse> getGroupPosts(
+//            @PathVariable Long eventId,
+//            @PathVariable Long groupId
+//    ) {
+//        MemberListDto.MemberDto member = null;
+//        EventResponse.GroupPostsResponse response = eventService.getGroupPosts(member, eventId, groupId);
+//        logResponse(response);
+//        return BaseResponse.of(SuccessCode.SUCCESS, response);
+//    }
 
     @Operation(summary = "초대 코드 검증")
     @GetMapping("/validate")
@@ -101,10 +103,9 @@ public class EventController {
     @Operation(summary = "이벤트 멤버 가져오기")
     @GetMapping("/admin/members")
     public BaseResponse<List<MemberListDto.MemberDto>> getMembers(
-            @RequestParam Long eventId,
-            @CurrentMember Member member){
-
-        List<MemberListDto.MemberDto> response = eventService.getMembersByEvent(eventId,member);
+            @RequestParam Long eventId){
+        MemberListDto.MemberDto member = null;
+        List<MemberListDto.MemberDto> response = eventService.getMembersByEvent(eventId);
         logResponse(response);
         return BaseResponse.onSuccess(response);
     }
@@ -112,8 +113,8 @@ public class EventController {
     @Operation(summary = "사용자 강퇴")
     @PostMapping("/admin/ban")
     public BaseResponse<String> kickMember(
-            @RequestBody EventRequest.KickMemberRequest request,
-            @CurrentMember Member member){
+            @RequestBody EventRequest.KickMemberRequest request){
+        MemberListDto.MemberDto member = null;
         eventService.kickMember(request, member);
         logResponse("success");
         return BaseResponse.onSuccess("success");
@@ -122,9 +123,9 @@ public class EventController {
     @Operation(summary = "관리자용 이벤트 상세 조회")
     @GetMapping("/admin/detail")
     public BaseResponse<EventResponse.AdminEventDetailResponse> getAdminEventDetail(
-            @RequestParam Long eventId,
-            @CurrentMember Member member
+            @RequestParam Long eventId
     ) {
+        MemberListDto.MemberDto member = null;
         EventResponse.AdminEventDetailResponse response = eventService.getAdminEventDetail(eventId, member);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
@@ -133,9 +134,9 @@ public class EventController {
     @Operation(summary = "관리자용 이벤트 정보 수정")
     @PatchMapping("/admin")
     public BaseResponse<EventResponse.UpdateEventResponse> updateEventInfo(
-            @Valid @RequestBody EventRequest.UpdateRequest request,
-            @CurrentMember Member member
+            @Valid @RequestBody EventRequest.UpdateRequest request
     ) {
+        MemberListDto.MemberDto member = null;
         EventResponse.UpdateEventResponse response = eventService.updateEventInfo(request, member);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);

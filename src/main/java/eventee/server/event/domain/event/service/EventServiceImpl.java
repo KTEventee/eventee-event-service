@@ -6,6 +6,7 @@ import eventee.server.event.domain.event.dto.EventResponse;
 import eventee.server.event.domain.event.dto.EventResponse.AdminEventDetailResponse;
 import eventee.server.event.domain.event.dto.EventResponse.UpdateEventResponse;
 import eventee.server.event.domain.group.repository.GroupRepository;
+import eventee.server.event.domain.infrastructure.client.member.MemberClient;
 import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.domain.event.exception.EventErrorStatus;
 import eventee.server.event.domain.event.exception.EventHandler;
@@ -35,6 +36,7 @@ public class EventServiceImpl implements EventService {
   private final GroupRepository groupRepository;
 
   private final EventConverter eventConverter;
+  private final MemberClient memberClient;
 
   /* ============================================
       1. 이벤트 생성
@@ -126,35 +128,35 @@ public class EventServiceImpl implements EventService {
     return eventConverter.toEventWithGroupsResponse(event, groups, relation.getRole(), relation.getNickname());
   }
 
-  /* ============================================
-      4. 그룹별 포스트 조회
-  ============================================ */
-  @Transactional(readOnly = true)
-  @Override
-  public EventResponse.GroupPostsResponse getGroupPosts(MemberListDto.MemberDto member, Long eventId, Long groupId) {
-
-    Event event = eventRepository.findById(eventId)
-        .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
-
-    boolean isParticipant =
-        memberEventRepository.existsByMemberIdAndEventAndIsDeletedFalse(member.id(), event);
-
-    if (!isParticipant) {
-      throw new EventHandler(EventErrorStatus.EVENT_ACCESS_DENIED);
-    }
-
-    Group group = groupRepository.findGroupByGroupId(groupId)
-        .orElseThrow(() -> new EventHandler(EventErrorStatus.GROUP_NOT_FOUND));
-
-    if (!Objects.equals(group.getEvent().getId(), eventId)) {
-      throw new EventHandler(EventErrorStatus.GROUP_NOT_BELONGS_TO_EVENT);
-    }
-
-    //fixme post 처리하기
-//    List<Post> posts = postRepository.findAllByGroupAndIsDeletedFalse(group);
-
-    return eventConverter.toGroupPostsResponse(group, posts, member);
-  }
+//  /* ============================================
+//      4. 그룹별 포스트 조회
+//  ============================================ */
+//  @Transactional(readOnly = true)
+//  @Override
+//  public EventResponse.GroupPostsResponse getGroupPosts(MemberListDto.MemberDto member, Long eventId, Long groupId) {
+//
+//    Event event = eventRepository.findById(eventId)
+//        .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
+//
+//    boolean isParticipant =
+//        memberEventRepository.existsByMemberIdAndEventAndIsDeletedFalse(member.id(), event);
+//
+//    if (!isParticipant) {
+//      throw new EventHandler(EventErrorStatus.EVENT_ACCESS_DENIED);
+//    }
+//
+//    Group group = groupRepository.findGroupByGroupId(groupId)
+//        .orElseThrow(() -> new EventHandler(EventErrorStatus.GROUP_NOT_FOUND));
+//
+//    if (!Objects.equals(group.getEvent().getId(), eventId)) {
+//      throw new EventHandler(EventErrorStatus.GROUP_NOT_BELONGS_TO_EVENT);
+//    }
+//
+//    //fixme post 처리하기
+////    List<Post> posts = postRepository.findAllByGroupAndIsDeletedFalse(group);
+//
+//    return eventConverter.toGroupPostsResponse(group, posts, member);
+//  }
 
   /* ============================================
       5. 초대 코드 유효성 검증
@@ -211,7 +213,7 @@ public class EventServiceImpl implements EventService {
 
 
     return relations.stream()
-        .map(m -> MemberListDto.MemberDto.from(m.getMember()))
+        .map(m -> memberClient.getMember(m.getMemberId()))
         .toList();
   }
 
