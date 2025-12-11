@@ -9,7 +9,6 @@ import eventee.server.event.domain.group.model.Group;
 import eventee.server.event.domain.group.model.MemberGroup;
 import eventee.server.event.domain.group.repository.GroupRepository;
 import eventee.server.event.domain.group.repository.MemberGroupRepository;
-import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.global.exception.BaseException;
 import eventee.server.event.global.exception.codes.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class GroupServiceImpl implements GroupService{
     private final MemberGroupRepository memberGroupRepository;
 
     @Transactional
-    public void createAdditionalGroup(GroupReqeust.GroupCreateDto request, MemberListDto.MemberDto member) {
+    public void createAdditionalGroup(GroupReqeust.GroupCreateDto request, Long memberId) {
 
         // 1) eventId로 이벤트 찾기
         Event event = eventRepository.findByIdAndIsDeletedFalse(request.eventId())
@@ -54,7 +53,7 @@ public class GroupServiceImpl implements GroupService{
 
         // 5) 생성자를 해당 그룹의 멤버로 배정
         MemberGroup memberGroup = MemberGroup.builder()
-            .memberId(member.id())
+            .memberId(memberId)
             .group(saved)
             .build();
 
@@ -77,7 +76,7 @@ public class GroupServiceImpl implements GroupService{
     }
 
     @Transactional(readOnly = true)
-    public GroupResponse.ListDto getGroupByEvent(Long eventId,MemberListDto.MemberDto member){
+    public GroupResponse.ListDto getGroupByEvent(Long eventId,Long memberId){
 
         Event event = eventRepository.findByIdAndIsDeletedFalse(eventId).orElseThrow(
                 () -> new BaseException(ErrorCode.EVENT_NOT_FOUND)
@@ -89,7 +88,7 @@ public class GroupServiceImpl implements GroupService{
         List<Group> otherGroups = new ArrayList<>();
 
         for(Group g : groups){
-            if(isJoin(g,member)) myGroup = g;
+            if(isJoin(g,memberId)) myGroup = g;
             else otherGroups.add(g);
             otherGroups.add(g);
         }
@@ -97,10 +96,10 @@ public class GroupServiceImpl implements GroupService{
         return GroupResponse.ListDto.from(myGroup, otherGroups);
     }
 
-    private Boolean isJoin(Group g, MemberListDto.MemberDto member){
+    private Boolean isJoin(Group g, Long memberId){
         List<MemberGroup> memberGroups = memberGroupRepository.findMemberGroupsByGroup(g);
         for(MemberGroup mg : memberGroups){
-            if(mg.getMemberId().equals(member.id())) return true;
+            if(mg.getMemberId().equals(memberId)) return true;
         }
         return false;
     }

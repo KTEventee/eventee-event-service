@@ -6,8 +6,6 @@ import eventee.server.event.domain.event.dto.EventResponse;
 import eventee.server.event.domain.event.dto.EventResponse.AdminEventDetailResponse;
 import eventee.server.event.domain.event.dto.EventResponse.UpdateEventResponse;
 import eventee.server.event.domain.group.repository.GroupRepository;
-import eventee.server.event.domain.infrastructure.client.member.MemberClient;
-import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.domain.event.exception.EventErrorStatus;
 import eventee.server.event.domain.event.exception.EventHandler;
 import eventee.server.event.domain.event.model.Event;
@@ -36,14 +34,13 @@ public class EventServiceImpl implements EventService {
   private final GroupRepository groupRepository;
 
   private final EventConverter eventConverter;
-  private final MemberClient memberClient;
 
   /* ============================================
       1. 이벤트 생성
   ============================================ */
   @Transactional
   @Override
-  public EventResponse.CreateResponse createEvent(MemberListDto.MemberDto member, EventRequest.CreateRequest request) {
+  public EventResponse.CreateResponse createEvent(Long memberId, EventRequest.CreateRequest request) {
 
     if (request.teamCount() == null || request.teamCount() <= 0) {
       throw new EventHandler(EventErrorStatus.EVENT_TEAM_COUNT_INVALID);
@@ -64,16 +61,16 @@ public class EventServiceImpl implements EventService {
     event = eventRepository.save(event);
 
     // HOST 연결
-    MemberEvent hostRelation = eventConverter.toHostRelation(member, event);
+    MemberEvent hostRelation = eventConverter.toHostRelation(memberId, event);
     memberEventRepository.save(hostRelation);
 
     // 팀 자동 생성
     for (int i = 1; i <= request.teamCount(); i++) {
-      Group group = eventConverter.toGroup(i, member, event);
+      Group group = eventConverter.toGroup(i, event);
       groupRepository.save(group);
     }
 
-    return eventConverter.toCreateResponse(event, member);
+    return eventConverter.toCreateResponse(event, memberId);
   }
 
   /* ============================================
@@ -81,7 +78,7 @@ public class EventServiceImpl implements EventService {
   ============================================ */
   @Transactional
   @Override
-  public EventResponse.JoinResponse joinEvent(MemberListDto.MemberDto member, EventRequest.JoinRequest request) {
+  public EventResponse.JoinResponse joinEvent(Long memberId, EventRequest.JoinRequest request) {
 
     Event event = eventRepository.findByInviteCode(request.inviteCode())
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
@@ -91,12 +88,12 @@ public class EventServiceImpl implements EventService {
     }
 
     MemberEvent memberEvent = memberEventRepository
-        .findByMemberIdAndEventAndIsDeletedFalse(member.id(), event)
+        .findByMemberIdAndEventAndIsDeletedFalse(memberId, event)
         .orElse(null);
 
     if (memberEvent == null) {
       memberEvent = MemberEvent.builder()
-          .memberId(member.id())
+          .memberId(memberId)
           .event(event)
           .role(MemberEventRole.PARTICIPANT)
           .nickname(request.nickname())
@@ -114,13 +111,13 @@ public class EventServiceImpl implements EventService {
   ============================================ */
   @Transactional(readOnly = true)
   @Override
-  public EventResponse.EventWithGroupsResponse getEventGroups(MemberListDto.MemberDto member, Long eventId) {
+  public EventResponse.EventWithGroupsResponse getEventGroups(Long memberId, Long eventId) {
 
     Event event = eventRepository.findById(eventId)
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
 
     MemberEvent relation = memberEventRepository
-        .findByMemberIdAndEventAndIsDeletedFalse(member.id(), event)
+        .findByMemberIdAndEventAndIsDeletedFalse(memberId, event)
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_ACCESS_DENIED));
 
     List<Group> groups = groupRepository.findAllByEventId(eventId);
@@ -201,7 +198,7 @@ public class EventServiceImpl implements EventService {
       7. 이벤트 참여자 목록
   ============================================ */
   @Transactional(readOnly = true)
-  public List<MemberListDto.MemberDto> getMembersByEvent(long eventId) {
+  public List<Long> getMembersByEvent(long eventId) {
 
     Event event = eventRepository.findByIdAndIsDeletedFalse(eventId)
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
@@ -213,7 +210,7 @@ public class EventServiceImpl implements EventService {
 
 
     return relations.stream()
-        .map(m -> memberClient.getMember(m.getMemberId()))
+        .map(MemberEvent::getMemberId)
         .toList();
   }
 
@@ -221,16 +218,12 @@ public class EventServiceImpl implements EventService {
       8. 강퇴
   ============================================ */
   @Transactional
-  public void kickMember(EventRequest.KickMemberRequest request, MemberListDto.MemberDto member) {
-
-    
-    //fixme member불러오는 API필요함
-    MemberListDto.MemberDto kickMember = member;
+  public void kickMember(EventRequest.KickMemberRequest request, Long memberId) {
 
     Event event = eventRepository.findByIdAndIsDeletedFalse(request.eventId())
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
 
-    MemberEvent me = memberEventRepository.findByMemberIdAndEventAndIsDeletedFalse(kickMember.id(), event)
+    MemberEvent me = memberEventRepository.findByMemberIdAndEventAndIsDeletedFalse(memberId, event)
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_MEMBER_NOT_FOUND));
 
     memberEventRepository.delete(me);
@@ -241,13 +234,13 @@ public class EventServiceImpl implements EventService {
   ============================================ */
   @Transactional
   @Override
-  public UpdateEventResponse updateEventInfo(EventRequest.UpdateRequest request, MemberListDto.MemberDto admin) {
+  public UpdateEventResponse updateEventInfo(EventRequest.UpdateRequest request, Long adminId) {
 
     Event event = eventRepository.findById(request.eventId())
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
 
     MemberEvent relation = memberEventRepository
-        .findByMemberIdAndEventAndIsDeletedFalse(admin.id(), event)
+        .findByMemberIdAndEventAndIsDeletedFalse(adminId, event)
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_ACCESS_DENIED));
 
     if (relation.getRole() != MemberEventRole.HOST) {
@@ -288,13 +281,13 @@ public class EventServiceImpl implements EventService {
       10. 관리자 대시보드 상세 조회
   ============================================ */
   @Transactional(readOnly = true)
-  public AdminEventDetailResponse getAdminEventDetail(Long eventId, MemberListDto.MemberDto admin) {
+  public AdminEventDetailResponse getAdminEventDetail(Long eventId, Long adminId) {
 
     Event event = eventRepository.findById(eventId)
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
 
     MemberEvent relation = memberEventRepository
-        .findByMemberIdAndEventAndIsDeletedFalse(admin.id(), event)
+        .findByMemberIdAndEventAndIsDeletedFalse(adminId, event)
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_ACCESS_DENIED));
 
     if (relation.getRole() != MemberEventRole.HOST) {

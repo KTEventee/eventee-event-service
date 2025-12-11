@@ -20,17 +20,10 @@ public class EventResponse {
       @Schema(description = "이벤트 시작 시각") LocalDateTime startAt,
       @Schema(description = "이벤트 종료 시각") LocalDateTime endAt,
       @Schema(description = "이벤트 생성 시각") LocalDateTime createdAt,
-      @Schema(description = "이벤트 생성자 정보") CreatorInfo creator
-  ) {
+      @Schema(description = "이벤트 생성자 정보") Long creatorId
+  ) {}
 
-    @Builder
-    @Schema(description = "이벤트 생성자 정보 DTO")
-    public record CreatorInfo(
-        @Schema(description = "회원 ID") Long memberId,
-        @Schema(description = "회원 닉네임") String nickname,
-        @Schema(description = "프로필 이미지 URL") String profileImageUrl
-    ) {}
-  }
+
 
   // 2. 초대 코드 입장 응답
   @Schema(description = "이벤트 초대 코드 입장 응답 DTO")
@@ -191,6 +184,13 @@ public class EventResponse {
   ) {}
 
 
+    @Builder
+    @Schema(description = "이벤트 생성자 정보 DTO")
+    public record CreatorInfo(
+            @Schema(description = "회원 ID") Long memberId,
+            @Schema(description = "회원 닉네임") String nickname,
+            @Schema(description = "프로필 이미지 URL") String profileImageUrl
+    ) {}
 
 
 }

@@ -3,7 +3,6 @@ package eventee.server.event.domain.event.controller;
 import eventee.server.event.domain.event.dto.EventRequest;
 import eventee.server.event.domain.event.dto.EventResponse;
 import eventee.server.event.domain.event.service.EventService;
-import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.global.exception.BaseResponse;
 import eventee.server.event.global.exception.codes.SuccessCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,9 +38,10 @@ public class EventController {
     @Operation(summary = "이벤트 생성")
     @PostMapping
     public BaseResponse<EventResponse.CreateResponse> createEvent(
-            @Valid @RequestBody EventRequest.CreateRequest request) {
-        MemberListDto.MemberDto member = null;
-        EventResponse.CreateResponse response = eventService.createEvent(member, request);
+            @Valid @RequestBody EventRequest.CreateRequest request
+            ) {
+        Long memberId = null;
+        EventResponse.CreateResponse response = eventService.createEvent(memberId, request);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
@@ -51,8 +51,8 @@ public class EventController {
     public BaseResponse<EventResponse.JoinResponse> joinEvent(
             @Valid @RequestBody EventRequest.JoinRequest request
     ) {
-        MemberListDto.MemberDto member = null;
-        EventResponse.JoinResponse response = eventService.joinEvent(member, request);
+        Long memberId = null;
+        EventResponse.JoinResponse response = eventService.joinEvent(memberId, request);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
@@ -62,8 +62,8 @@ public class EventController {
     public BaseResponse<EventResponse.EventWithGroupsResponse> getEventGroups(
             @PathVariable Long eventId
     ) {
-        MemberListDto.MemberDto member = null;
-        EventResponse.EventWithGroupsResponse response = eventService.getEventGroups(member, eventId);
+        Long memberId = null;
+        EventResponse.EventWithGroupsResponse response = eventService.getEventGroups(memberId, eventId);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
@@ -102,10 +102,10 @@ public class EventController {
 
     @Operation(summary = "이벤트 멤버 가져오기")
     @GetMapping("/admin/members")
-    public BaseResponse<List<MemberListDto.MemberDto>> getMembers(
+    public BaseResponse<List<Long>> getMembers(
             @RequestParam Long eventId){
-        MemberListDto.MemberDto member = null;
-        List<MemberListDto.MemberDto> response = eventService.getMembersByEvent(eventId);
+        Long memberId = null;
+        List<Long> response = eventService.getMembersByEvent(eventId);
         logResponse(response);
         return BaseResponse.onSuccess(response);
     }
@@ -114,8 +114,8 @@ public class EventController {
     @PostMapping("/admin/ban")
     public BaseResponse<String> kickMember(
             @RequestBody EventRequest.KickMemberRequest request){
-        MemberListDto.MemberDto member = null;
-        eventService.kickMember(request, member);
+        Long memberId = null;
+        eventService.kickMember(request, memberId);
         logResponse("success");
         return BaseResponse.onSuccess("success");
     }
@@ -125,8 +125,8 @@ public class EventController {
     public BaseResponse<EventResponse.AdminEventDetailResponse> getAdminEventDetail(
             @RequestParam Long eventId
     ) {
-        MemberListDto.MemberDto member = null;
-        EventResponse.AdminEventDetailResponse response = eventService.getAdminEventDetail(eventId, member);
+        Long memberId = null;
+        EventResponse.AdminEventDetailResponse response = eventService.getAdminEventDetail(eventId, memberId);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
@@ -136,8 +136,8 @@ public class EventController {
     public BaseResponse<EventResponse.UpdateEventResponse> updateEventInfo(
             @Valid @RequestBody EventRequest.UpdateRequest request
     ) {
-        MemberListDto.MemberDto member = null;
-        EventResponse.UpdateEventResponse response = eventService.updateEventInfo(request, member);
+        Long memberId = null;
+        EventResponse.UpdateEventResponse response = eventService.updateEventInfo(request, memberId);
         logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }

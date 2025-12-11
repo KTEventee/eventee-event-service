@@ -2,12 +2,10 @@ package eventee.server.event.domain.event.converter;
 
 
 import eventee.server.event.domain.event.dto.EventResponse;
-import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.domain.event.model.Event;
 import eventee.server.event.domain.event.model.MemberEvent;
 import eventee.server.event.domain.event.repository.MemberEventRepository;
 import eventee.server.event.domain.group.model.Group;
-import eventee.server.event.domain.infrastructure.client.post.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -36,27 +34,26 @@ public class EventConverter {
                 .build();
     }
 
-    public MemberEvent toHostRelation(MemberListDto.MemberDto member, Event event) {
+    public MemberEvent toHostRelation(Long memberId, Event event) {
         return MemberEvent.builder()
-                .memberId(member.id())
+                .memberId(memberId)
                 .event(event)
                 .role(MemberEvent.MemberEventRole.HOST)
                 .nickname(event.getTitle() + "관리자")
                 .build();
     }
 
-    public Group toGroup(int groupNo, MemberListDto.MemberDto leader, Event event) {
+    public Group toGroup(int groupNo, Event event) {
         return Group.builder()
                 .groupName("팀 " + groupNo + "조")
                 .groupDescription("팀 이름과 소개를 작성해주세요!")
                 .groupImg(null)
                 .groupNo(groupNo)
-                .groupLeader(leader.nickname())
                 .event(event)
                 .build();
     }
 
-    public EventResponse.CreateResponse toCreateResponse(Event event, MemberListDto.MemberDto member) {
+    public EventResponse.CreateResponse toCreateResponse(Event event, Long memberId) {
         String inviteUrl = "https://www.eventee.cloud/invite/" + event.getInviteCode();
 
         return EventResponse.CreateResponse.builder()
@@ -67,13 +64,7 @@ public class EventConverter {
                 .startAt(event.getStartAt())
                 .endAt(event.getEndAt())
                 .createdAt(event.getCreatedAt())
-                .creator(
-                        EventResponse.CreateResponse.CreatorInfo.builder()
-                                .memberId(member.id())
-                                .nickname(member.nickname())
-                                .profileImageUrl(member.profileImageUrl())
-                                .build()
-                )
+                .creatorId(memberId)
                 .build();
     }
 
@@ -87,7 +78,7 @@ public class EventConverter {
                                 .groupDescription(g.getGroupDescription())
                                 .groupImg(g.getGroupImg())
                                 .groupNo(g.getGroupNo())
-                                .groupLeader(g.getGroupLeader())
+//                                .groupLeader(g.getGroupLeader())
                                 .build())
                         .toList();
 
@@ -238,7 +229,7 @@ public class EventConverter {
                                 .groupDescription(group.getGroupDescription())
                                 .groupImg(group.getGroupImg())
                                 .groupNo(group.getGroupNo())
-                                .groupLeader(group.getGroupLeader())
+//                                .groupLeader(group.getGroupLeader())
                                 .build())
                         .toList();
 

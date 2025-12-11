@@ -3,7 +3,6 @@ package eventee.server.event.domain.group.controller;
 import eventee.server.event.domain.group.dto.GroupReqeust;
 import eventee.server.event.domain.group.dto.GroupResponse;
 import eventee.server.event.domain.group.service.GroupService;
-import eventee.server.event.domain.infrastructure.client.member.MemberListDto;
 import eventee.server.event.global.exception.BaseException;
 import eventee.server.event.global.exception.BaseResponse;
 import eventee.server.event.global.exception.codes.ErrorCode;
@@ -30,11 +29,10 @@ public class GroupController {
                     """
     )
     @PostMapping("/admin")
-    public BaseResponse<String> createAdditionalGroup(@RequestBody GroupReqeust.GroupCreateDto request
-            , MemberListDto.MemberDto member
-    ){
+    public BaseResponse<String> createAdditionalGroup(@RequestBody GroupReqeust.GroupCreateDto request){
         try{
-            groupService.createAdditionalGroup(request,member);
+            Long memberId = null;
+            groupService.createAdditionalGroup(request,memberId);
             return BaseResponse.onSuccess("success");
         }catch(BaseException e){
             return BaseResponse.onFailure(e.getCode(),null);
@@ -94,8 +92,8 @@ public class GroupController {
     @GetMapping("/{eventId}")
     public BaseResponse<GroupResponse.ListDto> getGroupByEvent(@PathVariable Long eventId){
         try{
-            MemberListDto.MemberDto member = null;
-            return BaseResponse.onSuccess(groupService.getGroupByEvent(eventId,member));
+            Long memberId = null;
+            return BaseResponse.onSuccess(groupService.getGroupByEvent(eventId,memberId));
         }catch(BaseException e){
             return BaseResponse.onFailure(e.getCode(),null);
         }catch (Exception e){

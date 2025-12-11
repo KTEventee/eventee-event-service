@@ -33,9 +33,7 @@ public class GroupResponse {
             @Schema(description = "그룹 이미지 URL", example = "https://eventee.s3.amazonaws.com/group/backend.png")
             String groupImg,
             @Schema(description = "그룹 번호(정렬/순서를 위한 값)", example = "1")
-            int groupNo,
-            @Schema(description = "그룹 리더 닉네임(초기 null 가능)", example = "leader_kim")
-            String groupLeader
+            int groupNo
     ){
         public static GroupDto from(Group group){
             if(group == null) return null;
@@ -44,8 +42,7 @@ public class GroupResponse {
                     group.getGroupName(),
                     group.getGroupDescription(),
                     group.getGroupImg(),
-                    group.getGroupNo(),
-                    group.getGroupLeader()
+                    group.getGroupNo()
             );
         }
 

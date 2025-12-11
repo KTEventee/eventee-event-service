@@ -32,7 +32,7 @@ public class Group extends BaseEntity {
     @NotNull private String groupDescription;
     private String groupImg;
     @NotNull private int groupNo;
-    private String groupLeader;
+//    private Long groupLeader;
 
     //NOTE member,event 추가해야함
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,7 +49,7 @@ public class Group extends BaseEntity {
         @NotNull String groupDescription,
         String groupImg,
         @NotNull int groupNo,
-        String groupLeader,
+        Long groupLeader,
         @NotNull Event event
     ) {
         this.groupId = groupId;
@@ -57,19 +57,7 @@ public class Group extends BaseEntity {
         this.groupDescription = groupDescription;
         this.groupImg = groupImg;
         this.groupNo = groupNo;
-        this.groupLeader = groupLeader;
         this.event = event;
-    }
-
-    public boolean updateLeader(GroupReqeust.GroupUpdateLeaderDto dto){
-        if (dto.leader() != null) {
-            String nv = dto.leader().trim();
-            if (!Objects.equals(this.groupLeader, nv)) {
-                this.groupLeader = nv;
-                return true;
-            }
-        }
-        return false;
     }
 
     public boolean updateGroup(GroupReqeust.GroupUpdateDto dto){
