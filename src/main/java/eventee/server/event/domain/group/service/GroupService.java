@@ -8,8 +8,4 @@ public interface GroupService {
     void deleteGroup(Long id);
     void updateGroup(GroupReqeust.GroupUpdateDto request);
     GroupResponse.ListDto getGroupByEvent(Long eventId,MemberListDto.MemberDto member);
-//    void updateLeader(GroupReqeust.GroupUpdateLeaderDto request);
-//    void enterGroup(Long id, MemberListDto.MemberDto member);
-//    void leaveGroup(Long id,MemberListDto.MemberDto member);
-//    void moveGroup(GroupReqeust.GroupMoveDto request,MemberListDto.MemberDto member);
 }

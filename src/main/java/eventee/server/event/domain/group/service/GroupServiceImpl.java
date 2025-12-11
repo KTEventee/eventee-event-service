@@ -97,41 +97,6 @@ public class GroupServiceImpl implements GroupService{
         return GroupResponse.ListDto.from(myGroup, otherGroups);
     }
 
-//    @Transactional
-//    public void updateLeader(GroupReqeust.GroupUpdateLeaderDto request){
-//        //note 리더 변경없는지 있는지 에러 날릴지 고민중.
-//        Group group = loadGroupById(request.groupId());
-//        if(group.updateLeader(request)) groupRepository.save(group);
-//    }
-//
-//    @Transactional
-//    public void enterGroup(Long id,Member member){
-//        Group group = loadGroupById(id);
-//
-//        group.addMember(member);
-//        groupRepository.save(group);
-//    }
-//
-//    @Transactional
-//    public void leaveGroup(Long id,Member member){
-//        Group group = loadGroupById(id);
-//
-//        group.leaveMember(member);
-//        groupRepository.save(group);
-//    }
-
-//    @Transactional
-//    public void moveGroup(GroupReqeust.GroupMoveDto request,Member member){
-//        Group beforeGroup = loadGroupById(request.beforeGroupId());
-//        Group afterGroup = loadGroupById(request.afterGroupId());
-//
-//        beforeGroup.leaveMember(member);
-//        afterGroup.addMember(member);
-//
-//        groupRepository.save(beforeGroup);
-//        groupRepository.save(afterGroup);
-//    }
-
     private Boolean isJoin(Group g, MemberListDto.MemberDto member){
         List<MemberGroup> memberGroups = memberGroupRepository.findMemberGroupsByGroup(g);
         for(MemberGroup mg : memberGroups){
