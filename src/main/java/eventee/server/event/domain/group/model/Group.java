@@ -2,7 +2,7 @@ package eventee.server.event.domain.group.model;
 
 import eventee.server.event.domain.event.model.Event;
 import eventee.server.event.domain.group.dto.GroupReqeust;
-import eventee.server.event.global.entity.BaseEntity;
+import eventee.server.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
