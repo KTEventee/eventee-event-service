@@ -4,6 +4,9 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+*.properties
+build.gradle
+src/main/java/eventee/server/event/global
 
 ### STS ###
 .apt_generated
