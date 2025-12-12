@@ -43,6 +43,12 @@ jobs:
           COMMON_TOKEN_GITHUB: ${{ secrets.COMMON_TOKEN_GITHUB}}  
         run: ./gradlew build
 
+      - name: Upload bootJar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: event-app-jar
+          path: build/libs/*.jar
+
   docker-build-and-push:
     needs: build
     runs-on: ubuntu-latest
@@ -51,6 +57,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download bootJar artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: event-app-jar
+          path: build/libs
 
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.COMMON_TOKEN_GITHUB}}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
