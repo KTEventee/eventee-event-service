@@ -49,7 +49,6 @@ public class Group extends BaseEntity {
         @NotNull String groupDescription,
         String groupImg,
         @NotNull int groupNo,
-        Long groupLeader,
         @NotNull Event event
     ) {
         this.groupId = groupId;
