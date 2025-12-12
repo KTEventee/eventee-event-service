@@ -39,9 +39,9 @@ jobs:
 
       - name: Build & Test with Gradle
         env:
-          COMMON_USERNAME_GITHUB: ${{ github.actor }}        # 🔹 여기 추가
-          COMMON_TOKEN_GITHUB: ${{ secrets.COMMON_TOKEN_GITHUB}}  
-        run: ./gradlew build
+          COMMON_USERNAME_GITHUB: ${{ github.actor }}
+          COMMON_TOKEN_GITHUB: ${{ secrets.COMMON_TOKEN_GITHUB }}  
+        run: ./gradlew test bootJar
 
       - name: Upload bootJar artifact
         uses: actions/upload-artifact@v4
@@ -65,7 +65,7 @@ jobs:
           path: build/libs
 
       - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.COMMON_TOKEN_GITHUB}}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.COMMON_TOKEN_GITHUB }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build Docker images (develop-latest & develop-sha-*)
         env:
