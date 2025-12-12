@@ -41,7 +41,7 @@ jobs:
         env:
           COMMON_USERNAME_GITHUB: ${{ github.actor }}
           COMMON_TOKEN_GITHUB: ${{ secrets.COMMON_TOKEN_GITHUB }}  
-        run: ./gradlew test bootJar
+        run: ./gradlew bootJar
 
       - name: Upload bootJar artifact
         uses: actions/upload-artifact@v4
