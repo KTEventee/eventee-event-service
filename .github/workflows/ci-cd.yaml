@@ -41,7 +41,7 @@ jobs:
         env:
           COMMON_USERNAME_GITHUB: ${{ github.actor }}        # 🔹 여기 추가
           COMMON_TOKEN_GITHUB: ${{ secrets.COMMON_TOKEN_GITHUB}}  
-        run: ./gradlew clean build
+        run: ./gradlew build
 
   docker-build-and-push:
     needs: build
