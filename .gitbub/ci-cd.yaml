@@ -1,0 +1,79 @@
+name: CI/CD - event (develop)
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+permissions:
+  contents: read
+  packages: write 
+
+env:
+  IMAGE_NAME: ghcr.io/ktEventee/event   # GitHub Packages(GHCR)에 올라갈 이미지 이름
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build & Test with Gradle
+        env:
+          COMMON_USERNAME_GITHUB: ${{ github.actor }}        # 🔹 여기 추가
+          COMMON_TOKEN_GITHUB: ${{ secrets.COMMON_TOKEN_GITHUB}}  
+        run: ./gradlew clean build
+
+  docker-build-and-push:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.COMMON_TOKEN_GITHUB}}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker images (develop-latest & develop-sha-*)
+        env:
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+        run: |
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+
+          echo "Building images:"
+          echo "  ${IMAGE_NAME}:develop-latest"
+          echo "  ${IMAGE_NAME}:develop-sha-${SHORT_SHA}"
+
+          docker build \
+            -t "${IMAGE_NAME}:develop-latest" \
+            -t "${IMAGE_NAME}:develop-sha-${SHORT_SHA}" .
+
+      - name: Push Docker images to GitHub Packages
+        env:
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+        run: |
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+
+          docker push "${IMAGE_NAME}:develop-latest"
+          docker push "${IMAGE_NAME}:develop-sha-${SHORT_SHA}"
