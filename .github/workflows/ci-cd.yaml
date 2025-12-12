@@ -21,6 +21,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug workspace & Gradle projects
+        run: |
+          echo "=== pwd ==="
+          pwd
+          echo "=== ls ==="
+          ls
+          echo "=== settings.gradle ==="
+          cat settings.gradle || echo "no settings.gradle"
+          echo "=== build.gradle ==="
+          cat build.gradle || echo "no build.gradle"
+          echo "=== Gradle projects ==="
+          ./gradlew -q projects
+        
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
