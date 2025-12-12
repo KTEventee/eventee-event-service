@@ -11,7 +11,7 @@ permissions:
   packages: write 
 
 env:
-  IMAGE_NAME: ghcr.io/ktEventee/event   # GitHub Packages(GHCR)에 올라갈 이미지 이름
+  IMAGE_NAME: ghcr.io/kteventee/event   # GitHub Packages(GHCR)에 올라갈 이미지 이름
 
 jobs:
   build:
