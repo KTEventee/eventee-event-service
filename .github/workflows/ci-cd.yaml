@@ -72,5 +72,5 @@ jobs:
           cd gitops
           git config user.name "eventee-develop-ci"
           git config user.email "ci@eventee.cloud"
-          git commit -am "chore(dev): deploy event ${IMAGE_TAG}"
+          git commit -am "(chore/dev): deploy event ${IMAGE_TAG}"
           git push origin main
