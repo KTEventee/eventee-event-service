@@ -12,28 +12,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import tools.jackson.databind.ObjectMapper;
-
 import java.util.List;
 
 @Tag(name = "Event", description = "이벤트 생성 및 입장 관련 API")
 @RestController
 @Validated
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/events")
+@RequestMapping("/events")
 @Slf4j
 public class EventController {
 
     private final EventService eventService;
-    private final ObjectMapper mapper = new ObjectMapper();
 
-    private void logResponse(Object response) {
-        try {
-            log.info("[Event API Response] {}", mapper.writeValueAsString(response));
-        } catch (Exception e) {
-            log.warn("Response log convert error: {}", e.getMessage());
-        }
-    }
 
     @Operation(summary = "이벤트 생성")
     @PostMapping
@@ -42,7 +32,6 @@ public class EventController {
             ) {
         Long memberId = null;
         EventResponse.CreateResponse response = eventService.createEvent(memberId, request);
-        logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
@@ -53,7 +42,6 @@ public class EventController {
     ) {
         Long memberId = null;
         EventResponse.JoinResponse response = eventService.joinEvent(memberId, request);
-        logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
@@ -64,7 +52,6 @@ public class EventController {
     ) {
         Long memberId = null;
         EventResponse.EventWithGroupsResponse response = eventService.getEventGroups(memberId, eventId);
-        logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
@@ -86,7 +73,6 @@ public class EventController {
             @RequestParam String code
     ) {
         EventResponse.InviteCodeValidateResponse response = eventService.validateInviteCode(code);
-        logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
@@ -96,7 +82,6 @@ public class EventController {
             @Valid @RequestBody EventRequest.PasswordVerifyRequest request
     ) {
         EventResponse.EventPasswordVerifyResponse response = eventService.verifyEventPassword(request);
-        logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
@@ -106,7 +91,6 @@ public class EventController {
             @RequestParam Long eventId){
         Long memberId = null;
         List<Long> response = eventService.getMembersByEvent(eventId);
-        logResponse(response);
         return BaseResponse.onSuccess(response);
     }
 
@@ -116,7 +100,6 @@ public class EventController {
             @RequestBody EventRequest.KickMemberRequest request){
         Long memberId = null;
         eventService.kickMember(request, memberId);
-        logResponse("success");
         return BaseResponse.onSuccess("success");
     }
 
@@ -127,7 +110,6 @@ public class EventController {
     ) {
         Long memberId = null;
         EventResponse.AdminEventDetailResponse response = eventService.getAdminEventDetail(eventId, memberId);
-        logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
@@ -138,7 +120,6 @@ public class EventController {
     ) {
         Long memberId = null;
         EventResponse.UpdateEventResponse response = eventService.updateEventInfo(request, memberId);
-        logResponse(response);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/group")
+@RequestMapping("/groups")
 @Slf4j
 @Tag(name = "Group API", description = "그룹(조) 생성, 수정, 이동, 조회 관련 API")
 public class GroupController {
