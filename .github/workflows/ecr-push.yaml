@@ -5,12 +5,11 @@ on:
     branches: [ prod ]
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}          # 예: ap-northeast-2
-  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}  # 예: eventee-event
+  AWS_REGION: ${{ secrets.AWS_REGION }}          # ap-northeast-2
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}  # eventee-event
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   build_and_push:
@@ -19,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ✅ OIDC/Trust policy 디버깅에 핵심 (repo/ref 확인)
       - name: Debug GitHub context
         run: |
           echo "github.repository=${{ github.repository }}"
@@ -51,18 +49,16 @@ jobs:
       - name: Build JAR
         run: ./gradlew clean bootJar --no-daemon
 
-      # ✅ OIDC로 Role Assume
-      - name: Configure AWS credentials (OIDC)
+      # ✅ IAM User (Access Key/Secret) 방식
+      - name: Configure AWS credentials (Access Key)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}  # arn:aws:iam::<acct>:role/<role>
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # ✅ 여기서 멈추면 Trust policy(sub/aud) 불일치 가능성 큼
       - name: Verify AWS identity
-        run: |
-          aws --version
-          aws sts get-caller-identity
+        run: aws sts get-caller-identity
 
       - name: Login to Amazon ECR
         id: login-ecr
