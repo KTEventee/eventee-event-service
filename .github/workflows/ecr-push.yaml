@@ -1,0 +1,66 @@
+name: Build & Push Docker Image - event (prod)
+
+on:
+  push:
+    branches: [ prod ]
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: meta
+        run: |
+          echo "IMAGE_TAG=prod-${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Configure Gradle for GitHub Packages
+        run: |
+          mkdir -p ~/.gradle
+          cat <<EOF > ~/.gradle/gradle.properties
+          gpr.user=${{ github.actor }}
+          gpr.token=${{ secrets.COMMON_TOKEN_GITHUB }}
+          EOF
+
+      - name: Grant execute permission for Gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build JAR
+        run: ./gradlew clean bootJar --no-daemon
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Ensure ECR repository exists
+        run: |
+          aws ecr describe-repositories --repository-names "${ECR_REPOSITORY}" >/dev/null 2>&1 || \
+          aws ecr create-repository --repository-name "${ECR_REPOSITORY}" >/dev/null
+
+      - name: Build & Push Docker image (ECR)
+        run: |
+          IMAGE_NAME="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}"
+          docker build -t "$IMAGE_NAME:${IMAGE_TAG}" .
+          docker push "$IMAGE_NAME:${IMAGE_TAG}"
