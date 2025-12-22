@@ -1,0 +1,96 @@
+package eventee.server.event.domain.group.model;
+
+import eventee.server.event.domain.event.model.Event;
+import eventee.server.event.domain.group.dto.GroupReqeust;
+import eventee.server.common.entity.BaseEntity;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Entity
+@Table(name = "event_group")
+@SQLDelete(sql = "UPDATE event_group SET is_deleted = true, deleted_at = now() where group_id = ?")
+@SQLRestriction("is_deleted is FALSE")
+public class Group extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long groupId;
+
+    @NotNull private String groupName;
+    @NotNull private String groupDescription;
+    private String groupImg;
+    @NotNull private int groupNo;
+//    private Long groupLeader;
+
+    //NOTE member,event 추가해야함
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
+    private Event event;
+
+    @OneToMany
+    private List<MemberGroup> memberGroups = new ArrayList<>();
+
+    @Builder(toBuilder = true)
+    private Group(
+        Long groupId,
+        @NotNull String groupName,
+        @NotNull String groupDescription,
+        String groupImg,
+        @NotNull int groupNo,
+        @NotNull Event event
+    ) {
+        this.groupId = groupId;
+        this.groupName = groupName;
+        this.groupDescription = groupDescription;
+        this.groupImg = groupImg;
+        this.groupNo = groupNo;
+        this.event = event;
+    }
+
+    public boolean updateGroup(GroupReqeust.GroupUpdateDto dto){
+        boolean changed = false;
+
+        if (dto.groupName() != null) {
+            String nv = dto.groupName().trim();
+            if (!Objects.equals(this.groupName, nv)) {
+                this.groupName = nv;
+                changed = true;
+            }
+        }
+
+        if (dto.groupDescription() != null) {
+            String nv = dto.groupDescription().trim();
+            if (!Objects.equals(this.groupDescription, nv)) {
+                this.groupDescription = nv;
+                changed = true;
+            }
+        }
+
+        if (dto.imgUrl() != null) {
+            String nv = dto.imgUrl().trim();
+            if (!Objects.equals(this.groupImg, nv)) {
+                this.groupImg = nv;
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    public void updateGroupImg(String imgUrl) {
+        this.groupImg = imgUrl;
+    }
+
+}
