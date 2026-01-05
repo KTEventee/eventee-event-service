@@ -4,6 +4,7 @@ import eventee.server.event.domain.event.converter.EventConverter;
 import eventee.server.event.domain.event.dto.EventRequest;
 import eventee.server.event.domain.event.dto.EventResponse;
 import eventee.server.event.domain.event.dto.EventResponse.AdminEventDetailResponse;
+import eventee.server.event.domain.event.dto.EventResponse.JoinedEventResponse;
 import eventee.server.event.domain.event.dto.EventResponse.UpdateEventResponse;
 import eventee.server.event.domain.group.repository.GroupRepository;
 import eventee.server.event.domain.event.exception.EventErrorStatus;
@@ -308,5 +309,51 @@ public class EventServiceImpl implements EventService {
         .groupCount(groupCount)
         .build();
   }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<JoinedEventResponse> getMyJoinedEvents(Long memberId) {
+
+    // 1. 내가 참여한 모든 이벤트 관계 조회
+    List<MemberEvent> relations =
+        memberEventRepository.findByMemberIdAndIsDeletedFalse(memberId);
+
+    if (relations.isEmpty()) {
+      return List.of();
+    }
+
+    // 2. 각 이벤트별 DTO 매핑
+    return relations.stream().map(relation -> {
+      Event event = relation.getEvent();
+
+      // 참여자 수
+      int participantsCount = memberEventRepository.countByEventId(event.getId()).intValue();
+
+
+      // 참여자 프로필 이미지 (최대 3명)
+      // → memberId만 반환 (프론트에서 이미지 URL 매핑 or 추후 BFF에서 처리)
+      List<String> participantProfileImages =
+          memberEventRepository
+              .findMemberEventsByEventAndIsDeletedFalse(event)
+              .stream()
+              .limit(3)
+              .map(me -> String.valueOf(me.getMemberId())) // placeholder
+              .toList();
+
+      return JoinedEventResponse.builder()
+          .eventId(event.getId())
+          .title(event.getTitle())
+          .thumbnailUrl(event.getThumbnailUrl())
+          .inviteCode(event.getInviteCode())
+          .startAt(event.getStartAt())
+          .endAt(event.getEndAt())
+          .participantsCount(participantsCount)
+          .participantProfileImages(participantProfileImages)
+          .role(relation.getRole().name())
+          .build();
+
+    }).toList();
+  }
+
 }
 

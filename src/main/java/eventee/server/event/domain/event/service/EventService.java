@@ -4,6 +4,7 @@ import eventee.server.event.domain.event.dto.EventRequest;
 import eventee.server.event.domain.event.dto.EventRequest.UpdateRequest;
 import eventee.server.event.domain.event.dto.EventResponse;
 
+import eventee.server.event.domain.event.dto.EventResponse.JoinedEventResponse;
 import java.util.List;
 
 public interface EventService {
@@ -24,5 +25,7 @@ public interface EventService {
   EventResponse.UpdateEventResponse updateEventInfo(UpdateRequest request, Long memberId);
 
   EventResponse.AdminEventDetailResponse getAdminEventDetail(Long eventId, Long memberId);
+
+  List<JoinedEventResponse> getMyJoinedEvents(Long memberId);
 }
 

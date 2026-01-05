@@ -13,13 +13,11 @@ import java.util.Optional;
 @Repository
 public interface MemberEventRepository extends JpaRepository<MemberEvent, Long> {
 
-  List<MemberEvent> findAllByMemberIdAndIsDeletedFalse(Long memberId);
-
-  boolean existsByMemberIdAndEventAndIsDeletedFalse(Long memberId, Event event);
-
   Optional<MemberEvent> findByMemberIdAndEventAndIsDeletedFalse(Long memberId, Event event);
   List<MemberEvent> findMemberEventsByEventAndIsDeletedFalse(Event event);
 
   @Query("SELECT COUNT(me) FROM MemberEvent me WHERE me.event.id = :eventId AND me.isDeleted = false")
   Long countByEventId(@Param("eventId") Long eventId);
+
+  List<MemberEvent> findByMemberIdAndIsDeletedFalse(Long memberId);
 }

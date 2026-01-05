@@ -1,5 +1,7 @@
 package eventee.server.event.domain.group.controller;
 
+import eventee.server.common.jwt.exception.JwtErrorCode;
+import eventee.server.common.jwt.exception.JwtHandler;
 import eventee.server.event.domain.group.dto.GroupReqeust;
 import eventee.server.event.domain.group.dto.GroupResponse;
 import eventee.server.event.domain.group.service.GroupService;
@@ -8,6 +10,7 @@ import eventee.server.common.exception.BaseResponse;
 import eventee.server.common.exception.codes.ErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -29,17 +32,14 @@ public class GroupController {
                     """
     )
     @PostMapping("/admin")
-    public BaseResponse<String> createAdditionalGroup(@RequestBody GroupReqeust.GroupCreateDto request){
-        try{
-            Long memberId = null;
-            groupService.createAdditionalGroup(request,memberId);
-            return BaseResponse.onSuccess("success");
-        }catch(BaseException e){
-            return BaseResponse.onFailure(e.getCode(),null);
-        }catch (Exception e){
-            log.warn(e.getMessage());
-            return BaseResponse.onFailure(ErrorCode.BAD_REQUEST,null);
+    public BaseResponse<String> createAdditionalGroup(HttpServletRequest request,
+        @RequestBody GroupReqeust.GroupCreateDto requestDto){
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
         }
+        groupService.createAdditionalGroup(requestDto,memberId);
+        return BaseResponse.onSuccess("success");
     }
 
     @Operation(
@@ -51,15 +51,8 @@ public class GroupController {
     )
     @DeleteMapping("/{id}")
     public BaseResponse<String> deleteGroup(@PathVariable Long id){
-        try{
-            groupService.deleteGroup(id);
-            return BaseResponse.onSuccess("success");
-        }catch(BaseException e){
-            return BaseResponse.onFailure(e.getCode(),null);
-        }catch (Exception e){
-            log.warn(e.getMessage());
-            return BaseResponse.onFailure(ErrorCode.BAD_REQUEST,null);
-        }
+        groupService.deleteGroup(id);
+        return BaseResponse.onSuccess("success");
     }
 
     @Operation(
@@ -70,15 +63,9 @@ public class GroupController {
     )
     @PutMapping
     public BaseResponse<String> updateGroup(@RequestBody GroupReqeust.GroupUpdateDto request){
-        try{
-            groupService.updateGroup(request);
-            return BaseResponse.onSuccess("success");
-        }catch(BaseException e){
-            return BaseResponse.onFailure(e.getCode(),null);
-        }catch (Exception e){
-            log.warn(e.getMessage());
-            return BaseResponse.onFailure(ErrorCode.BAD_REQUEST,null);
-        }
+        groupService.updateGroup(request);
+        return BaseResponse.onSuccess("success");
+
     }
 
     @Operation(
@@ -90,16 +77,13 @@ public class GroupController {
                     """
     )
     @GetMapping("/{eventId}")
-    public BaseResponse<GroupResponse.ListDto> getGroupByEvent(@PathVariable Long eventId){
-        try{
-            Long memberId = null;
-            return BaseResponse.onSuccess(groupService.getGroupByEvent(eventId,memberId));
-        }catch(BaseException e){
-            return BaseResponse.onFailure(e.getCode(),null);
-        }catch (Exception e){
-            log.warn(e.getMessage());
-            return BaseResponse.onFailure(ErrorCode.BAD_REQUEST,null);
+    public BaseResponse<GroupResponse.ListDto> getGroupByEvent(HttpServletRequest request,
+        @PathVariable Long eventId){
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
         }
+        return BaseResponse.onSuccess(groupService.getGroupByEvent(eventId,memberId));
     }
 
 }

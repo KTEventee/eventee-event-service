@@ -192,5 +192,40 @@ public class EventResponse {
             @Schema(description = "프로필 이미지 URL") String profileImageUrl
     ) {}
 
+    // 9. 마이페이지 - 내가 참여한 이벤트 목록 조회 응답
+    @Schema(description = "마이페이지용 참여 이벤트 요약 DTO")
+    @Builder
+    public record JoinedEventResponse(
+
+        @Schema(description = "이벤트 ID")
+        Long eventId,
+
+        @Schema(description = "이벤트 제목")
+        String title,
+
+        @Schema(description = "이벤트 썸네일 URL")
+        String thumbnailUrl,
+
+        @Schema(description = "이벤트 초대 코드")
+        String inviteCode,
+
+        @Schema(description = "이벤트 시작 시각")
+        LocalDateTime startAt,
+
+        @Schema(description = "이벤트 종료 시각")
+        LocalDateTime endAt,
+
+        @Schema(description = "이벤트 참여자 수")
+        Integer participantsCount,
+
+        @Schema(description = "참여자 프로필 이미지 URL 목록 (최대 3개)")
+        List<String> participantProfileImages,
+
+        @Schema(description = "이벤트 내 역할 (HOST / PARTICIPANT)")
+        String role
+
+    ) {}
+
+
 
 }
