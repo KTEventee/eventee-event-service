@@ -1,5 +1,7 @@
 package eventee.server.event.domain.event.controller;
 
+import eventee.server.common.jwt.exception.JwtErrorCode;
+import eventee.server.common.jwt.exception.JwtHandler;
 import eventee.server.event.domain.event.dto.EventRequest;
 import eventee.server.event.domain.event.dto.EventResponse;
 import eventee.server.event.domain.event.service.EventService;
@@ -7,6 +9,7 @@ import eventee.server.common.exception.BaseResponse;
 import eventee.server.common.exception.codes.SuccessCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,30 +30,39 @@ public class EventController {
 
     @Operation(summary = "이벤트 생성")
     @PostMapping
-    public BaseResponse<EventResponse.CreateResponse> createEvent(
-            @Valid @RequestBody EventRequest.CreateRequest request
+    public BaseResponse<EventResponse.CreateResponse> createEvent(HttpServletRequest request,
+            @Valid @RequestBody EventRequest.CreateRequest requestDto
             ) {
-        Long memberId = null;
-        EventResponse.CreateResponse response = eventService.createEvent(memberId, request);
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
+        }
+        EventResponse.CreateResponse response = eventService.createEvent(memberId, requestDto);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
     @Operation(summary = "이벤트 입장")
     @PostMapping("/join")
-    public BaseResponse<EventResponse.JoinResponse> joinEvent(
-            @Valid @RequestBody EventRequest.JoinRequest request
+    public BaseResponse<EventResponse.JoinResponse> joinEvent(HttpServletRequest request,
+            @Valid @RequestBody EventRequest.JoinRequest requestDto
     ) {
-        Long memberId = null;
-        EventResponse.JoinResponse response = eventService.joinEvent(memberId, request);
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
+        }
+        EventResponse.JoinResponse response = eventService.joinEvent(memberId, requestDto);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
 
     @Operation(summary = "이벤트 그룹 목록 조회")
     @GetMapping("/{eventId}/groups")
-    public BaseResponse<EventResponse.EventWithGroupsResponse> getEventGroups(
+    public BaseResponse<EventResponse.EventWithGroupsResponse> getEventGroups(HttpServletRequest request,
             @PathVariable Long eventId
     ) {
-        Long memberId = null;
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
+        }
         EventResponse.EventWithGroupsResponse response = eventService.getEventGroups(memberId, eventId);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
@@ -87,28 +99,38 @@ public class EventController {
 
     @Operation(summary = "이벤트 멤버 가져오기")
     @GetMapping("/admin/members")
-    public BaseResponse<List<Long>> getMembers(
+    public BaseResponse<List<Long>> getMembers(HttpServletRequest request,
             @RequestParam Long eventId){
-        Long memberId = null;
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
+        }
         List<Long> response = eventService.getMembersByEvent(eventId);
         return BaseResponse.onSuccess(response);
     }
 
     @Operation(summary = "사용자 강퇴")
     @PostMapping("/admin/ban")
-    public BaseResponse<String> kickMember(
-            @RequestBody EventRequest.KickMemberRequest request){
-        Long memberId = null;
-        eventService.kickMember(request, memberId);
+    public BaseResponse<String> kickMember(HttpServletRequest request,
+            @RequestBody EventRequest.KickMemberRequest requestDto){
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
+        }
+        eventService.kickMember(requestDto, memberId);
         return BaseResponse.onSuccess("success");
     }
 
     @Operation(summary = "관리자용 이벤트 상세 조회")
     @GetMapping("/admin/detail")
     public BaseResponse<EventResponse.AdminEventDetailResponse> getAdminEventDetail(
+        HttpServletRequest request,
             @RequestParam Long eventId
     ) {
-        Long memberId = null;
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
+        }
         EventResponse.AdminEventDetailResponse response = eventService.getAdminEventDetail(eventId, memberId);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
@@ -116,12 +138,33 @@ public class EventController {
     @Operation(summary = "관리자용 이벤트 정보 수정")
     @PatchMapping("/admin")
     public BaseResponse<EventResponse.UpdateEventResponse> updateEventInfo(
-            @Valid @RequestBody EventRequest.UpdateRequest request
+        HttpServletRequest request,
+            @Valid @RequestBody EventRequest.UpdateRequest requestDto
     ) {
-        Long memberId = null;
-        EventResponse.UpdateEventResponse response = eventService.updateEventInfo(request, memberId);
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
+        }
+        EventResponse.UpdateEventResponse response = eventService.updateEventInfo(requestDto, memberId);
         return BaseResponse.of(SuccessCode.SUCCESS, response);
     }
+
+    @Operation(summary = "내가 참여한 이벤트 목록 조회 (마이페이지)")
+    @GetMapping("/me")
+    public BaseResponse<List<EventResponse.JoinedEventResponse>> getMyEvents(
+        HttpServletRequest request
+    ) {
+        Long memberId = (Long) request.getAttribute("memberId");
+        if (memberId == null) {
+            throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
+        }
+
+        List<EventResponse.JoinedEventResponse> response =
+            eventService.getMyJoinedEvents(memberId);
+
+        return BaseResponse.of(SuccessCode.SUCCESS, response);
+    }
+
 
 }
 
