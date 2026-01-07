@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class EventRequest {
 
   @Schema(description = "이벤트 생성 요청 DTO")
-  public record CreateRequest(
+  public record     CreateRequest(
 
       @NotBlank
       @Schema(description = "이벤트 제목", example = "봄 소풍 MT")
