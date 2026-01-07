@@ -35,7 +35,7 @@ repositories {
 
 dependencies {
 	// 공통 모듈
-	implementation "eventee.server:common:v0.6.2"
+	implementation "eventee.server:common:v0.6.0"
 
 	// 스프링 스타터
 	implementation 'org.springframework.boot:spring-boot-starter'
@@ -75,6 +75,8 @@ dependencies {
 	implementation 'software.amazon.awssdk:sts'          // IAM 역할 기반 인증
 	implementation platform("software.amazon.awssdk:bom:2.25.61")
 	implementation "software.amazon.awssdk:s3"
+
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {
