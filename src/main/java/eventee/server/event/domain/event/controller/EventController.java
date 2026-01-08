@@ -111,14 +111,14 @@ public class EventController {
         return BaseResponse.onSuccess(response);
     }
 
-    @Operation(summary = "이벤트 멤버 ID값 가져오기")
+    @Operation(summary = "이벤트 멤버 nickname값 가져오기")
     @GetMapping("/admin/members/nickname")
-    public BaseResponse<List<Long>> getMembers(@RequestParam Long eventId,Authentication authentication){
+    public BaseResponse<List<String>> getMembers(@RequestParam Long eventId,Authentication authentication){
         Long memberId = (Long) authentication.getPrincipal();
         if (memberId == null) {
             throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
         }
-        List<Long> response = eventService.getMembersNamesByEvent(eventId);
+        List<String> response = eventService.getMembersNamesByEvent(eventId);
         return BaseResponse.onSuccess(response);
     }
 
