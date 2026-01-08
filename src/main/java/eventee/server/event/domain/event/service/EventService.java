@@ -19,7 +19,9 @@ public interface EventService {
 
   EventResponse.EventPasswordVerifyResponse verifyEventPassword(EventRequest.PasswordVerifyRequest request);
 
-  List<Long> getMembersByEvent(long eventId);
+  List<Long> getMembersIdByEvent(long eventId);
+  List<String> getMembersNamesByEvent(long eventId);
+
   void kickMember(EventRequest.KickMemberRequest request, Long memberId);
 
   EventResponse.UpdateEventResponse updateEventInfo(UpdateRequest request, Long memberId);
