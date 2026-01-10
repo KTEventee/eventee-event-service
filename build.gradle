@@ -35,7 +35,7 @@ repositories {
 
 dependencies {
 	// 공통 모듈
-	implementation "eventee.server:common:v0.6.0"
+	implementation "eventee.server:common:v0.6.3"
 
 	// 스프링 스타터
 	implementation 'org.springframework.boot:spring-boot-starter'
@@ -48,14 +48,6 @@ dependencies {
 	// 롬복
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-
-//	//jwt
-//	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
-//	implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
-//	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
-//
-//	//oauth
-//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
 	//swagger
 	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0"

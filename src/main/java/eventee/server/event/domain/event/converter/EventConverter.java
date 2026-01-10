@@ -68,7 +68,13 @@ public class EventConverter {
                 .build();
     }
 
-    public EventResponse.EventWithGroupsResponse toEventWithGroupsResponse(Event event, List<Group> groups, MemberEvent.MemberEventRole role, String nickname) {
+    public EventResponse.EventWithGroupsResponse toEventWithGroupsResponse(
+            Long memberId,
+            Event event,
+            List<Group> groups,
+            MemberEvent.MemberEventRole role,
+            String nickname
+    ) {
 
         List<EventResponse.EventWithGroupsResponse.GroupSummary> groupDtos =
                 groups.stream()
@@ -78,7 +84,6 @@ public class EventConverter {
                                 .groupDescription(g.getGroupDescription())
                                 .groupImg(g.getGroupImg())
                                 .groupNo(g.getGroupNo())
-//                                .groupLeader(g.getGroupLeader())
                                 .build())
                         .toList();
 
@@ -86,8 +91,8 @@ public class EventConverter {
                 .eventId(event.getId())
                 .eventTitle(event.getTitle())
                 .eventDescription(event.getDescription())
-                .eventRole(role.name())
-                .nickname(nickname)
+                .eventRole(role.name())   // ⭐ HOST / MEMBER
+                .nickname(nickname)       // ⭐ 이벤트 닉네임
                 .thumbnailUrl(event.getThumbnailUrl())
                 .startAt(event.getStartAt())
                 .endAt(event.getEndAt())
@@ -95,6 +100,7 @@ public class EventConverter {
                 .groups(groupDtos)
                 .build();
     }
+
 
 //    public EventResponse.GroupPostsResponse toGroupPostsResponse(
 //            Group group,
