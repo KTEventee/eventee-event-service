@@ -69,6 +69,7 @@ public class EventConverter {
     }
 
     public EventResponse.EventWithGroupsResponse toEventWithGroupsResponse(
+            Long memberId,
             Event event,
             List<Group> groups,
             MemberEvent.MemberEventRole role,
