@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,8 +34,9 @@ public class GroupController {
     )
     @PostMapping("/admin")
     public BaseResponse<String> createAdditionalGroup(HttpServletRequest request,
-        @RequestBody GroupReqeust.GroupCreateDto requestDto){
-        Long memberId = (Long) request.getAttribute("memberId");
+        @RequestBody GroupReqeust.GroupCreateDto requestDto,
+                                                      Authentication authentication){
+        Long memberId = (Long) authentication.getPrincipal();
         if (memberId == null) {
             throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
         }
@@ -78,8 +80,8 @@ public class GroupController {
     )
     @GetMapping("/{eventId}")
     public BaseResponse<GroupResponse.ListDto> getGroupByEvent(HttpServletRequest request,
-        @PathVariable Long eventId){
-        Long memberId = (Long) request.getAttribute("memberId");
+        @PathVariable Long eventId, Authentication authentication){
+        Long memberId = (Long) authentication.getPrincipal();
         if (memberId == null) {
             throw new JwtHandler(JwtErrorCode.JWT_MISSING_TOKEN);
         }

@@ -199,7 +199,7 @@ public class EventServiceImpl implements EventService {
       7. 이벤트 참여자 목록
   ============================================ */
   @Transactional(readOnly = true)
-  public List<Long> getMembersByEvent(long eventId) {
+  public List<Long> getMembersIdByEvent(long eventId) {
 
     Event event = eventRepository.findByIdAndIsDeletedFalse(eventId)
         .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
@@ -213,6 +213,21 @@ public class EventServiceImpl implements EventService {
     return relations.stream()
         .map(MemberEvent::getMemberId)
         .toList();
+  }
+
+  public List<String> getMembersNamesByEvent(long eventId){
+    Event event = eventRepository.findByIdAndIsDeletedFalse(eventId)
+            .orElseThrow(() -> new EventHandler(EventErrorStatus.EVENT_NOT_FOUND));
+
+    List<MemberEvent> relations = memberEventRepository
+            .findMemberEventsByEventAndIsDeletedFalse(event);
+
+    //fixme 호출한대로 그냥 출력하기
+
+
+    return relations.stream()
+            .map(MemberEvent::getNickname)
+            .toList();
   }
 
   /* ============================================
